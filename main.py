@@ -50,9 +50,18 @@ class Problem(csp.CSP):
 
             # use realine() to read next line
             line = f.readline()
+
+    # C1: Each room can only hold 1 class at a time
+    def check_C1(self,)
         
-        self.graph
-        self.constraints_function
+
+    # C2: Each student (class) can only attend a class at a time
+    def check_C2(self,)
+
+
+    # C3: No two weekly class of the same course may occur on the same day 
+    def check_C3(self,)
+
         
     def dump_solution(self, fh):
         # Place here your code to write solution to opened file object fh
