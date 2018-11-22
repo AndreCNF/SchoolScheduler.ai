@@ -7,35 +7,50 @@ class Problem(csp.CSP):
         # set variables, domains, graph, and constraint_function accordingly
         #super().__init__(variables, domains, graph, constraints_function)
 
-        self.timetable = {}
-        self.room = {}
-        self.student_class = {}
-        self.weekly_class = {}
-        self.associations = {}
-
+        self.timetable = []
+        self.weekly_class = []
+        self.associations = []
+        self.room = []
+        self.student_class = []
+        
+        # Read initial line
         line = fh.readline()
-        # use the read line to read further.
-        # If the file is not empty keep reading one line
-        # at a time, till the file is empty
+
+        # If the file is not empty keep reading one line at a time, till the file is empty
         while line:
             
-            # Split line in pieces delimited by ruaitespace
+            # Split line in pieces delimited by whitespace
             line = line.split()
-            if line[0] == 'T'
-                self.timetables.update(line)
-            elif line [0] == 'W'
-                self.weekly_class.update(line)
-            elif line [0] == 'R'
-                self.room.update(line)
-            elif line [0] == 'S'
-                self.student_class.update(line)
+
+            # For these 3 first cases go over one line, split each piece and store as tuple
+            if line[0] == 'T':
+                for i in range(length(line)-1):
+                    temp = tuple(line[i+1].split(",")) # Split again to make tuples
+                    self.timetable.append(temp)
+
+            elif line [0] == 'W':
+                for i in range(length(line)-1):
+                    temp = tuple(line[i+1].split(","))
+                    self.weekly_class.append(temp)
+
             elif line [0] ==  'A'
-                self.associations.update(line)
+                for i in range(length(line)-1):
+                    temp = tuple(line[i+1].split(","))
+                    self.associations.append(temp)
+
+            # room is array of strings
+            elif line [0] == 'R'
+                for i in range(length(line)-1):
+                    self.room.append(line[i+1])
+
+            # student_class is array of strings
+            elif line [0] == 'S'
+                for i in range(length(line)-1):
+                    self.student_class.append(line[i+1])
+
             # use realine() to read next line
             line = f.readline()
-
-        self.variables
-        self.domains
+        
         self.graph
         self.constraints_function
         
