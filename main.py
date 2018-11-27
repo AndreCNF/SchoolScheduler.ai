@@ -64,20 +64,27 @@ class Problem(csp.CSP):
         # Variables are W
         variables = timetable
 
-    #C1 to C3 -> returns true if constraint is verified, false if not
-
-    # # C1: Each room can only hold 1 class at a time
-    # def check_C1(self,)
+    # C1 to C3 -> returns true if constraint is verified, false if not
+    # C1: Each room can only hold 1 class at a time
+    def check_C1(self, A, a, B, b):
+        if a[0] == b[0] and a[1] == b[1] and a[2] == b[2]:
+            return False
+        return True
         
+    # C2: Each student (class) can only attend a class at a time
+    def check_C2(self, A, a, B, b):
+        for key in dict1:
+            if dict2[key] == True:
+                if a[0] == b[0] and a[1] == b[1]:
+                    return False
+        return True
 
-    # # C2: Each student (class) can only attend a class at a time
-    # def check_C2(self,)
+    # C3: No two weekly class of the same course may occur on the same day 
+    def check_C3(self, A, a, B, b):
+        if a[0] == b[0] and A[0] == B[0] and A[1] == B[1]:
+            return False
+        return True
 
-
-    # # C3: No two weekly class of the same course may occur on the same day 
-    # def check_C3(self,)
-
-        
     # def dump_solution(self, fh):
     #     # Place here your code to write solution to opened file object fh
 
