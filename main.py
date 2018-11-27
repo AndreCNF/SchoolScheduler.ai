@@ -13,6 +13,7 @@ class Problem(csp.CSP):
         student_class = []
         self.courses_dict = {}
         self.graph = {}
+        self.result = None
         
         with open(input_file) as f:
 
@@ -68,16 +69,16 @@ class Problem(csp.CSP):
         f.close()
 
         # Get the domain T x R
-        domains = self.combine_output(timetable, room)
+        domains = self.combine_output(timetable, room, weekly_class)
 
         # Variables are W
-        variables = timetable
+        variables = weekly_class
 
         # The neighbors of each node are every other node (is this stupid?)
-        self.create_neighbors_dict(timetable)
+        self.create_neighbors_dict(weekly_class)
 
         # Run CSP's innit
-        super().__init__(variables, domains, self.graph, self.constraints_function)
+        super().__init__(variables, domains, self.graph, self.constraint_function)
 
     # C1 to C3 -> returns true if constraint is verified, false if not
     # C1: Each room can only hold 1 class at a time
@@ -108,19 +109,39 @@ class Problem(csp.CSP):
 
     # Check if all constraints are verified
     def constraint_function(self, A, a, B, b):
-        return check_C1(self, A, a, B, b) and check_C2(self, A, a, B, b) and check_C3(self, A, a, B, b)
+        return self.check_C1(A, a, B, b) and self.check_C2(A, a, B, b) and self.check_C3(A, a, B, b)
 
-    # def dump_solution(self, fh):
-    #     # Place here your code to write solution to opened file object fh
+    def dump_solution(self, fh):
+        # Place here your code to write solution to opened file object fh
+        count = 0
+        with open(fh, 'w+') as f:
+            for key in self.result.keys():
+                count = count + 1
+
+                line = str(key[0]) + ',' + str(key[1]) + ',' + str(key[2]) + ' ' + str(self.result[key][0]) + ',' + str(self.result[key][1]) + ' ' + str(self.result[key][2])
+
+                if count != len(self.result.keys()):
+                    line += '\n'
+                    
+                f.write(line)
+
+        f.close()
+        return
 
     # Make the output domain by getting all possible combinations of timetables (T) with rooms (R)
-    def combine_output(self, T, R):
-        output = []
+    def combine_output(self, T, R, W):
+        output = {}
 
-        for t in T:
-            for r in R:
-                output_tuple = (t[0], t[1], r)
-                output.append(output_tuple)
+        for w in W:
+            output[w] = {}
+            output_list = []
+
+            for t in T:
+                for r in R:
+                    output_tuple = (t[0], t[1], r)
+                    output_list.append(output_tuple)
+            
+            output[w] = output_list
 
         return output
 
@@ -139,7 +160,7 @@ class Problem(csp.CSP):
 def solve(input_file, output_file):
     p = Problem(input_file)
     # Place here your code that calls function csp.backtracking_search(self, ...)
-    p.backtracking_search(self)
+    p.result = csp.backtracking_search(p)
     p.dump_solution(output_file)
 
 solve('example1.txt', 'random_output.txt')
