@@ -12,6 +12,7 @@ class Problem(csp.CSP):
         associations = []
         room = []
         student_class = []
+        self.courses_dict = {}
         
         with open(input_file) as f:
 
@@ -41,6 +42,14 @@ class Problem(csp.CSP):
                     for i in range(len(line)-1):
                         temp = tuple(line[i+1].split(","))
                         associations.append(temp)
+
+                        # Check if dictionary of current course exists
+                        try:
+                            courses_dict[temp[1]]
+                        except:
+                            courses_dict[temp[1]] = {}
+
+                        courses_dict[temp[1]][temp[0]] = True
                     del temp
 
                 # room is array of strings
@@ -73,10 +82,16 @@ class Problem(csp.CSP):
         
     # C2: Each student (class) can only attend a class at a time
     def check_C2(self, A, a, B, b):
-        for key in dict1:
-            if dict2[key] == True:
+        for key in self.courses_dict[A[0]].keys():
+            # Check if the course of A is attended by a common class of B
+            try:
+                courses_dict[B[0]][key]
+
+                # Check if both courses have a common schedule
                 if a[0] == b[0] and a[1] == b[1]:
                     return False
+            except:
+                continue
         return True
 
     # C3: No two weekly class of the same course may occur on the same day 
@@ -84,6 +99,10 @@ class Problem(csp.CSP):
         if a[0] == b[0] and A[0] == B[0] and A[1] == B[1]:
             return False
         return True
+
+    # Check if all constraints are verified
+    def constraint_function(self, A, a, B, b):
+        return check_C1(self, A, a, B, b) and check_C2(self, A, a, B, b) and check_C3(self, A, a, B, b)
 
     # def dump_solution(self, fh):
     #     # Place here your code to write solution to opened file object fh
