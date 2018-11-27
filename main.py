@@ -29,16 +29,19 @@ class Problem(csp.CSP):
                     for i in range(len(line)-1):
                         temp = tuple(line[i+1].split(",")) # Split again to make tuples
                         timetable.append(temp)
+                    del temp
 
                 elif line [0] == 'W':
                     for i in range(len(line)-1):
                         temp = tuple(line[i+1].split(","))
                         weekly_class.append(temp)
+                    del temp
 
                 elif line [0] == 'A':
                     for i in range(len(line)-1):
                         temp = tuple(line[i+1].split(","))
                         associations.append(temp)
+                    del temp
 
                 # room is array of strings
                 elif line [0] == 'R':
@@ -55,6 +58,14 @@ class Problem(csp.CSP):
 
         f.close()
 
+        # Get the domain T x R
+        domains = combine_output(timetable, room)
+
+        # Variables are W
+        variables = timetable
+
+    #C1 to C3 -> returns true if constraint is verified, false if not
+
     # # C1: Each room can only hold 1 class at a time
     # def check_C1(self,)
         
@@ -69,6 +80,17 @@ class Problem(csp.CSP):
         
     # def dump_solution(self, fh):
     #     # Place here your code to write solution to opened file object fh
+
+# Make the output domain by getting all possible combinations of timetables (T) with rooms (R)
+def combine_output(T, R):
+    output = []
+
+    for t in T:
+        for r in R:
+            output_tuple = (t[0], t[1], r)
+            output.append(output_tuple)
+
+    return output
         
 def solve(input_file, output_file):
     p = Problem(input_file)
