@@ -5,7 +5,6 @@ class Problem(csp.CSP):
     def __init__(self, input_file):
         # Place here your code to load problem from opened file object fh and
         # set variables, domains, graph, and constraint_function accordingly
-        #super().__init__(variables, domains, graph, constraints_function)
 
         timetable = []
         weekly_class = []
@@ -13,6 +12,7 @@ class Problem(csp.CSP):
         room = []
         student_class = []
         self.courses_dict = {}
+        self.graph = {}
         
         with open(input_file) as f:
 
@@ -45,11 +45,11 @@ class Problem(csp.CSP):
 
                         # Check if dictionary of current course exists
                         try:
-                            courses_dict[temp[1]]
+                            self.courses_dict[temp[1]]
                         except:
-                            courses_dict[temp[1]] = {}
+                            self.courses_dict[temp[1]] = {}
 
-                        courses_dict[temp[1]][temp[0]] = True
+                        self.courses_dict[temp[1]][temp[0]] = True
                     del temp
 
                 # room is array of strings
@@ -68,10 +68,16 @@ class Problem(csp.CSP):
         f.close()
 
         # Get the domain T x R
-        domains = combine_output(timetable, room)
+        domains = self.combine_output(timetable, room)
 
         # Variables are W
         variables = timetable
+
+        # The neighbors of each node are every other node (is this stupid?)
+        self.create_neighbors_dict(timetable)
+
+        # Run CSP's innit
+        super().__init__(variables, domains, self.graph, self.constraints_function)
 
     # C1 to C3 -> returns true if constraint is verified, false if not
     # C1: Each room can only hold 1 class at a time
@@ -85,7 +91,7 @@ class Problem(csp.CSP):
         for key in self.courses_dict[A[0]].keys():
             # Check if the course of A is attended by a common class of B
             try:
-                courses_dict[B[0]][key]
+                self.courses_dict[B[0]][key]
 
                 # Check if both courses have a common schedule
                 if a[0] == b[0] and a[1] == b[1]:
@@ -107,20 +113,33 @@ class Problem(csp.CSP):
     # def dump_solution(self, fh):
     #     # Place here your code to write solution to opened file object fh
 
-# Make the output domain by getting all possible combinations of timetables (T) with rooms (R)
-def combine_output(T, R):
-    output = []
+    # Make the output domain by getting all possible combinations of timetables (T) with rooms (R)
+    def combine_output(self, T, R):
+        output = []
 
-    for t in T:
-        for r in R:
-            output_tuple = (t[0], t[1], r)
-            output.append(output_tuple)
+        for t in T:
+            for r in R:
+                output_tuple = (t[0], t[1], r)
+                output.append(output_tuple)
 
-    return output
+        return output
+
+    # Create dictionary of neighbors of each node
+    def create_neighbors_dict(self, W):
+        for w in W:
+            # Create a list of all the nodes except the current one
+            tmp = list(W)
+            tmp.remove(w)
+
+            # Add list to neighbors of node w
+            self.graph[w] = tmp
+        
+        return self.graph
         
 def solve(input_file, output_file):
     p = Problem(input_file)
     # Place here your code that calls function csp.backtracking_search(self, ...)
+    p.backtracking_search(self)
     p.dump_solution(output_file)
 
 solve('example1.txt', 'random_output.txt')
