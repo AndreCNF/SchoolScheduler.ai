@@ -178,6 +178,9 @@ def solve(input_file, output_file):
               13, 12, 11, 10, 9, 8]
 
     for b in b_list:
+        # Return the reading pointer to the beginning
+        input_file.seek(0)
+
         p = Problem(input_file, b)
 
         # Try getting a solution
@@ -185,10 +188,11 @@ def solve(input_file, output_file):
             p.result = csp.backtracking_search(p)
         except:
             # Get the last boundary
-            best_b = b + 1
+            best_b = b + 2
 
             # Run again the best solution
             p = Problem(input_file, best_b)
+            p.result = csp.backtracking_search(p)
             p.dump_solution(output_file)
             
             # Stop running the code when no solution is found for the current latest hour b
