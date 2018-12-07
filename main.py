@@ -180,23 +180,23 @@ def solve(input_file, output_file):
     for b in b_list:
         # Return the reading pointer to the beginning
         input_file.seek(0)
-
+        
         p = Problem(input_file, b)
+        # Place here your code that calls function csp.backtracking_search(self, ...)
 
         # Try getting a solution
         try:
             p.result = csp.backtracking_search(p)
         except:
-            # Get the last boundary
-            best_b = b + 2
-
-            # Run again the best solution
-            p = Problem(input_file, best_b)
-            p.result = csp.backtracking_search(p)
-            p.dump_solution(output_file)
-            
             # Stop running the code when no solution is found for the current latest hour b
             break
+        
+        # Return the writing pointer to the beginning
+        output_file.seek(0)
+
+        # Keep on writing the solution. The solution with the earliest schedule (before the CSP crashes)
+        # is the last one to overwrite the output file.
+        p.dump_solution(output_file)
 
     print(datetime.now() - startTime)
 
