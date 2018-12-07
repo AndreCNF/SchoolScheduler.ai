@@ -1,8 +1,9 @@
 import csp
+from datetime import datetime
 
 class Problem(csp.CSP):
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, boundary):
         # Place here your code to load problem from opened file object fh and
         # set variables, domains, graph, and constraint_function accordingly
 
@@ -14,6 +15,7 @@ class Problem(csp.CSP):
         self.courses_dict = {}
         self.graph = {}
         self.result = None
+        self.boundary = boundary
         
         with open(input_file) as f:
 
@@ -30,7 +32,10 @@ class Problem(csp.CSP):
                 if line[0] == 'T':
                     for i in range(len(line)-1):
                         temp = tuple(line[i+1].split(",")) # Split again to make tuples
-                        timetable.append(temp)
+
+                        # Only add timetable if it's earlier than the specified latest hour boundary
+                        if int(temp[1]) < self.boundary:
+                            timetable.append(temp)
                     del temp
 
                 elif line [0] == 'W':
@@ -114,6 +119,15 @@ class Problem(csp.CSP):
     def dump_solution(self, fh):
         # Place here your code to write solution to opened file object fh
         count = 0
+
+        # Don't write the output if the solution is empty
+        if self.result is None:
+            return
+
+        # Don't write the output if the solution is empty
+        if self.result.keys() is None:
+            return
+
         with open(fh, 'w+') as f:
             for key in self.result.keys():
                 count = count + 1
@@ -158,9 +172,28 @@ class Problem(csp.CSP):
         return self.graph
         
 def solve(input_file, output_file):
-    p = Problem(input_file)
-    # Place here your code that calls function csp.backtracking_search(self, ...)
-    p.result = csp.backtracking_search(p)
-    p.dump_solution(output_file)
+    startTime = datetime.now()
 
-solve('example1.txt', 'random_output.txt')
+    b_list = [23, 22, 21, 20, 19, 18, 17, 16, 15, 14, \
+              13, 12, 11, 10, 9, 8]
+
+    for b in b_list:
+        p = Problem(input_file, b)
+
+        # Try getting a solution
+        try:
+            p.result = csp.backtracking_search(p)
+        except:
+            # Get the last boundary
+            best_b = b + 1
+
+            # Run again the best solution
+            p = Problem(input_file, best_b)
+            p.dump_solution(output_file)
+            
+            # Stop running the code when no solution is found for the current latest hour b
+            break
+
+    print(datetime.now() - startTime)
+
+solve('public_test_3.txt', 'public_test_3_output.txt')
