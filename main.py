@@ -1,5 +1,6 @@
 import csp
 from datetime import datetime
+import copy
 
 class Problem(csp.CSP):
 
@@ -17,61 +18,57 @@ class Problem(csp.CSP):
         self.result = None
         self.boundary = boundary
         
-        with open(input_file) as f:
+        # Read initial line
+        line = input_file.readline()
 
-            # Read initial line
-            line = f.readline()
+        # If the file is not empty keep reading one line at a time, till the file is empty
+        while line:
+            
+            # Split line in pieces delimited by whitespace
+            line = line.split()
 
-            # If the file is not empty keep reading one line at a time, till the file is empty
-            while line:
-                
-                # Split line in pieces delimited by whitespace
-                line = line.split()
+            # For these 3 first cases go over one line, split each piece and store as tuple
+            if line[0] == 'T':
+                for i in range(len(line)-1):
+                    temp = tuple(line[i+1].split(",")) # Split again to make tuples
 
-                # For these 3 first cases go over one line, split each piece and store as tuple
-                if line[0] == 'T':
-                    for i in range(len(line)-1):
-                        temp = tuple(line[i+1].split(",")) # Split again to make tuples
+                    # Only add timetable if it's earlier than the specified latest hour boundary
+                    if int(temp[1]) < self.boundary:
+                        timetable.append(temp)
+                del temp
 
-                        # Only add timetable if it's earlier than the specified latest hour boundary
-                        if int(temp[1]) < self.boundary:
-                            timetable.append(temp)
-                    del temp
+            elif line [0] == 'W':
+                for i in range(len(line)-1):
+                    temp = tuple(line[i+1].split(","))
+                    weekly_class.append(temp)
+                del temp
 
-                elif line [0] == 'W':
-                    for i in range(len(line)-1):
-                        temp = tuple(line[i+1].split(","))
-                        weekly_class.append(temp)
-                    del temp
+            elif line [0] == 'A':
+                for i in range(len(line)-1):
+                    temp = tuple(line[i+1].split(","))
+                    associations.append(temp)
 
-                elif line [0] == 'A':
-                    for i in range(len(line)-1):
-                        temp = tuple(line[i+1].split(","))
-                        associations.append(temp)
+                    # Check if dictionary of current course exists
+                    try:
+                        self.courses_dict[temp[1]]
+                    except:
+                        self.courses_dict[temp[1]] = {}
 
-                        # Check if dictionary of current course exists
-                        try:
-                            self.courses_dict[temp[1]]
-                        except:
-                            self.courses_dict[temp[1]] = {}
+                    self.courses_dict[temp[1]][temp[0]] = True
+                del temp
 
-                        self.courses_dict[temp[1]][temp[0]] = True
-                    del temp
+            # room is array of strings
+            elif line [0] == 'R':
+                for i in range(len(line)-1):
+                    room.append(line[i+1])
 
-                # room is array of strings
-                elif line [0] == 'R':
-                    for i in range(len(line)-1):
-                        room.append(line[i+1])
+            # student_class is array of strings
+            elif line [0] == 'S':
+                for i in range(len(line)-1):
+                    student_class.append(line[i+1])
 
-                # student_class is array of strings
-                elif line [0] == 'S':
-                    for i in range(len(line)-1):
-                        student_class.append(line[i+1])
-
-                # use realine() to read next line
-                line = f.readline()
-
-        f.close()
+            # use realine() to read next line
+            line = input_file.readline()
 
         # Get the domain T x R
         domains = self.combine_output(timetable, room, weekly_class)
@@ -128,18 +125,15 @@ class Problem(csp.CSP):
         if self.result.keys() is None:
             return
 
-        with open(fh, 'w+') as f:
-            for key in self.result.keys():
-                count = count + 1
+        for key in self.result.keys():
+            count = count + 1
 
-                line = str(key[0]) + ',' + str(key[1]) + ',' + str(key[2]) + ' ' + str(self.result[key][0]) + ',' + str(self.result[key][1]) + ' ' + str(self.result[key][2])
+            line = str(key[0]) + ',' + str(key[1]) + ',' + str(key[2]) + ' ' + str(self.result[key][0]) + ',' + str(self.result[key][1]) + ' ' + str(self.result[key][2])
 
-                if count != len(self.result.keys()):
-                    line += '\n'
-                    
-                f.write(line)
-
-        f.close()
+            if count != len(self.result.keys()):
+                line += '\n'
+                
+            fh.write(line)
         return
 
     # Make the output domain by getting all possible combinations of timetables (T) with rooms (R)
@@ -170,34 +164,83 @@ class Problem(csp.CSP):
             self.graph[w] = tmp
         
         return self.graph
+
+# Function to get the second element of a string, with values separated by comma, as an integer
+def get_string_second_elem(stringX):
+    return int(stringX.split(',')[1])
+
+# Function to find the possible hours in a day that can be used to assign classes.
+# This is useful for the list of boundary values, which are used to optimize the problem.
+def get_possible_shift_hours(input_file):
+    # Read initial line
+    line = input_file.readline()
+
+    # If the file is not empty keep reading one line at a time, till the file is empty
+    while line:
+        
+        # Split line in pieces delimited by whitespace
+        line = line.split()
+
+        # For these 3 first cases go over one line, split each piece and store as tuple
+        if line[0] == 'T':
+            # Get a list of the hours of all shifts
+            shift_hours = list(map(get_string_second_elem, line[1:]))
+
+            # Earliest hour
+            min_hour = min(shift_hours)
+
+            # Latest hour
+            max_hour = max(shift_hours)
+
+            # List of all possible values, in an descending order, with no duplicates
+            possible_hours = list(range(max_hour, min_hour, -1))
+
+            break
+
+        # If the line still isn't referent to the timetable slots set (T), continue searching
+        line = input_file.readline()
+
+    # Return the reading pointer to the beginning
+    input_file.seek(0)
+
+    return possible_hours
         
 def solve(input_file, output_file):
+    # Start counting the running time
     startTime = datetime.now()
 
-    b_list = [23, 22, 21, 20, 19, 18, 17, 16, 15, 14, \
-              13, 12, 11, 10, 9, 8]
+    # Possible hours, in a descending order, in order to optimize the schedule for earliest timetable slots
+    b_list = get_possible_shift_hours(input_file)
 
     for b in b_list:
         # Return the reading pointer to the beginning
         input_file.seek(0)
         
         p = Problem(input_file, b)
-        # Place here your code that calls function csp.backtracking_search(self, ...)
+
+        p.result = csp.backtracking_search(p,
+                                           select_unassigned_variable=csp.mrv,
+                                           order_domain_values=csp.lcv,
+                                           inference=csp.mac)
 
         # Try getting a solution
-        try:
-            p.result = csp.backtracking_search(p)
-        except:
+        if p.result == None:
             # Stop running the code when no solution is found for the current latest hour b
             break
-        
-        # Return the writing pointer to the beginning
-        output_file.seek(0)
 
-        # Keep on writing the solution. The solution with the earliest schedule (before the CSP crashes)
-        # is the last one to overwrite the output file.
-        p.dump_solution(output_file)
+        else:
+            # Save a copy when a solution exists
+            prev_p = copy.deepcopy(p)
 
+    # Output the best working solution
+    prev_p.dump_solution(output_file)
+
+    # See how much time our code took to get the solution
     print(datetime.now() - startTime)
 
-solve('public_test_3.txt', 'public_test_3_output.txt')
+# Open the input and output files before entering in our functions, in order to be more similar to
+# what the teacher's code does
+input_file = open('public_test_3.txt')
+output_file = open('public_test_3_output.txt', 'w')
+solve(input_file, output_file)
+output_file.close()
