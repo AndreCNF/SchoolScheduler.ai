@@ -17,70 +17,76 @@ class Problem(csp.CSP):
         self.graph = {}
         self.result = None
         self.boundary = boundary
-        
-        # Read initial line
-        line = input_file.readline()
 
-        # If the file is not empty keep reading one line at a time, till the file is empty
-        while line:
-            
-            # Split line in pieces delimited by whitespace
-            line = line.split()
-
-            # For these 3 first cases go over one line, split each piece and store as tuple
-            if line[0] == 'T':
-                for i in range(len(line)-1):
-                    temp = tuple(line[i+1].split(",")) # Split again to make tuples
-
-                    # Only add timetable if it's earlier than the specified latest hour boundary
-                    if int(temp[1]) < self.boundary:
-                        timetable.append(temp)
-                del temp
-
-            elif line [0] == 'W':
-                for i in range(len(line)-1):
-                    temp = tuple(line[i+1].split(","))
-                    weekly_class.append(temp)
-                del temp
-
-            elif line [0] == 'A':
-                for i in range(len(line)-1):
-                    temp = tuple(line[i+1].split(","))
-                    associations.append(temp)
-
-                    # Check if dictionary of current course exists
-                    try:
-                        self.courses_dict[temp[1]]
-                    except:
-                        self.courses_dict[temp[1]] = {}
-
-                    self.courses_dict[temp[1]][temp[0]] = True
-                del temp
-
-            # room is array of strings
-            elif line [0] == 'R':
-                for i in range(len(line)-1):
-                    room.append(line[i+1])
-
-            # student_class is array of strings
-            elif line [0] == 'S':
-                for i in range(len(line)-1):
-                    student_class.append(line[i+1])
-
-            # use realine() to read next line
+        if input_file is not None:
+            # Read initial line
             line = input_file.readline()
 
-        # Get the domain T x R
-        domains = self.combine_output(timetable, room, weekly_class)
+            # If the file is not empty keep reading one line at a time, till the file is empty
+            while line:
+                
+                # Split line in pieces delimited by whitespace
+                line = line.split()
 
-        # Variables are W
-        variables = weekly_class
+                # For these 3 first cases go over one line, split each piece and store as tuple
+                if line[0] == 'T':
+                    for i in range(len(line)-1):
+                        temp = tuple(line[i+1].split(",")) # Split again to make tuples
 
-        # The neighbors of each node are every other node (is this stupid?)
-        self.create_neighbors_dict(weekly_class)
+                        # Only add timetable if it's earlier than the specified latest hour boundary
+                        if int(temp[1]) < self.boundary:
+                            timetable.append(temp)
+                    del temp
 
-        # Run CSP's innit
-        super().__init__(variables, domains, self.graph, self.constraint_function)
+                elif line [0] == 'W':
+                    for i in range(len(line)-1):
+                        temp = tuple(line[i+1].split(","))
+                        weekly_class.append(temp)
+                    del temp
+
+                elif line [0] == 'A':
+                    for i in range(len(line)-1):
+                        temp = tuple(line[i+1].split(","))
+                        associations.append(temp)
+
+                        # Check if dictionary of current course exists
+                        try:
+                            self.courses_dict[temp[1]]
+                        except:
+                            self.courses_dict[temp[1]] = {}
+
+                        self.courses_dict[temp[1]][temp[0]] = True
+                    del temp
+
+                # room is array of strings
+                elif line [0] == 'R':
+                    for i in range(len(line)-1):
+                        room.append(line[i+1])
+
+                # student_class is array of strings
+                elif line [0] == 'S':
+                    for i in range(len(line)-1):
+                        student_class.append(line[i+1])
+
+                # use realine() to read next line
+                line = input_file.readline()
+
+            # Get the domain T x R
+            domains = self.combine_output(timetable, room, weekly_class)
+
+            # Variables are W
+            variables = weekly_class
+
+            # The neighbors of each node are every other node (is this stupid?)
+            self.create_neighbors_dict(weekly_class)
+
+            # Run CSP's innit
+            super().__init__(variables, domains, self.graph, self.constraint_function)
+
+        else:
+            # Just leave domains and varibles as None, when no input_file is specified
+            domains = None
+            variables = None
 
     # C1 to C3 -> returns true if constraint is verified, false if not
     # C1: Each room can only hold 1 class at a time
@@ -165,6 +171,24 @@ class Problem(csp.CSP):
         
         return self.graph
 
+    # Make an efficient copy of the Problem object
+    def copy(self):
+        problem_copy = Problem(None, None)
+        problem_copy.courses_dict = self.courses_dict.copy()
+        problem_copy.graph = self.graph.copy()
+        problem_copy.domains = self.domains.copy()
+        problem_copy.variables = self.variables.copy()
+        problem_copy.boundary = self.boundary
+        problem_copy.neighbors = self.neighbors.copy()
+        problem_copy.initial = self.initial
+        problem_copy.curr_domains = self.curr_domains.copy()
+        problem_copy.nassigns = self.nassigns
+
+        if self.result is not None:
+            problem_copy.result = self.result.copy()
+
+        return problem_copy
+
 # Function to get the second element of a string, with values separated by comma, as an integer
 def get_string_second_elem(stringX):
     return int(stringX.split(',')[1])
@@ -230,7 +254,7 @@ def solve(input_file, output_file):
 
         else:
             # Save a copy when a solution exists
-            prev_p = copy.deepcopy(p)
+            prev_p = p.copy()
 
     # Output the best working solution
     prev_p.dump_solution(output_file)
