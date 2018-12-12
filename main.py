@@ -77,7 +77,7 @@ class Problem(csp.CSP):
             # Variables are W
             variables = weekly_class
 
-            # The neighbors of each node are every other node (is this stupid?)
+            # The neighbors of each node are every other node 
             self.create_neighbors_dict(weekly_class)
 
             # Run CSP's innit
@@ -264,7 +264,7 @@ def solve(input_file, output_file):
 
 # Open the input and output files before entering in our functions, in order to be more similar to
 # what the teacher's code does
-input_file = open('public_test_3.txt')
-output_file = open('public_test_3_output.txt', 'w')
+input_file = open('examples/test_inventado.txt')
+output_file = open('examples/test_inventado_output.txt', 'w')
 solve(input_file, output_file)
 output_file.close()

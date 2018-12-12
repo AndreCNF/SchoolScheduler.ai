@@ -1,0 +1,17 @@
+Describe in how the CSP was formulated, namely the variables, domains, and constraints considered.
+
+R1: The problem has as inputs the rooms available, the timetable slots, the student classes, the weekly
+classes and a respective set of associations between student classes and courses.
+The variables are the weekly classes, each can be assigned to a room and a timetable slot. The domain 
+consists of the all the possible combinations of rooms and timetables. We implemented that with an array
+of tuples indexed by timetables. The graph was implemented as a dictionary of lists in which every node has
+a list for every other node. Associations were implemented in a 
+
+The constraints (3 in total) are that each room can only hold 1 class at a time, each student can only attend a single class at a time
+and that no two weekly classes of the same course may occur on the same day.
+
+
+Indicate which heuristics and constraint propagation (inference) methods were used,
+and justify your choice.
+
+R2: 
