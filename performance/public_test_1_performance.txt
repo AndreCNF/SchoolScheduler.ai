@@ -1,0 +1,30 @@
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function unordered_domain_values at 0x10f19f598>, <function no_inference at 0x10f19f6a8>):
+0:00:00.005448
+
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function unordered_domain_values at 0x10f19f598>, <function forward_checking at 0x10f19f730>):
+0:00:00.004212
+
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function unordered_domain_values at 0x10f19f598>, <function mac at 0x10f19f7b8>):
+0:00:00.003889
+
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function lcv at 0x10f19f620>, <function no_inference at 0x10f19f6a8>):
+0:00:00.002903
+
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function lcv at 0x10f19f620>, <function forward_checking at 0x10f19f730>):
+0:00:00.002930
+
+Time taken when using the functions (<function first_unassigned_variable at 0x10f19f400>, <function lcv at 0x10f19f620>, <function mac at 0x10f19f7b8>):
+0:00:00.002934
+
+Time taken when using the functions (<function mrv at 0x10f19f488>, <function unordered_domain_values at 0x10f19f598>, <function forward_checking at 0x10f19f730>):
+0:00:00.004459
+
+Time taken when using the functions (<function mrv at 0x10f19f488>, <function unordered_domain_values at 0x10f19f598>, <function mac at 0x10f19f7b8>):
+0:00:00.002676
+
+Time taken when using the functions (<function mrv at 0x10f19f488>, <function lcv at 0x10f19f620>, <function forward_checking at 0x10f19f730>):
+0:00:00.002099
+
+Time taken when using the functions (<function mrv at 0x10f19f488>, <function lcv at 0x10f19f620>, <function mac at 0x10f19f7b8>):
+0:00:00.001842
+

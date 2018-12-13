@@ -1,6 +1,7 @@
 import csp
 from datetime import datetime
 import copy
+from tqdm import tqdm
 
 class Problem(csp.CSP):
 
@@ -217,7 +218,7 @@ def get_possible_shift_hours(input_file):
             max_hour = max(shift_hours)
 
             # List of all possible values, in an descending order, with no duplicates
-            possible_hours = list(range(max_hour, min_hour, -1))
+            possible_hours = list(range(max_hour, min_hour-1, -1))
 
             break
 
@@ -230,41 +231,69 @@ def get_possible_shift_hours(input_file):
     return possible_hours
         
 def solve(input_file, output_file):
-    # Start counting the running time
-    startTime = datetime.now()
+    # List of the heurestics available
+    select_variables_func_list = [csp.first_unassigned_variable, csp.mrv]
+    order_domain_func_list = [csp.unordered_domain_values, csp.lcv]
+    inference_func_list = [csp.no_inference, csp.forward_checking, csp.mac]
 
-    # Possible hours, in a descending order, in order to optimize the schedule for earliest timetable slots
-    b_list = get_possible_shift_hours(input_file)
+    # Open a file where the durations of code running are written
+    performance_file = open('performance/public_test_1_performance.txt', 'w')
 
-    for b in b_list:
-        # Return the reading pointer to the beginning
-        input_file.seek(0)
-        
-        p = Problem(input_file, b)
+    # Go through all the possible heuristics combinations
+    for select_variables_func in tqdm(select_variables_func_list):
+        for order_domain_func in tqdm(order_domain_func_list):
+            for inference_func in tqdm(inference_func_list):
+                
+                # Skip the combinations that take a lot of time, even for small examples
+                if select_variables_func == csp.mrv and inference_func == csp.no_inference:
+                    continue
 
-        p.result = csp.backtracking_search(p,
-                                           select_unassigned_variable=csp.mrv,
-                                           order_domain_values=csp.lcv,
-                                           inference=csp.mac)
+                # Start counting the running time
+                startTime = datetime.now()
 
-        # Try getting a solution
-        if p.result == None:
-            # Stop running the code when no solution is found for the current latest hour b
-            break
+                # Possible hours, in a descending order, in order to optimize the schedule for earliest timetable slots
+                b_list = get_possible_shift_hours(input_file)
 
-        else:
-            # Save a copy when a solution exists
-            prev_p = p.copy()
+                for b in b_list:
+                    p = Problem(input_file, b)
 
-    # Output the best working solution
-    prev_p.dump_solution(output_file)
+                    p.result = csp.backtracking_search(p,
+                                                    select_unassigned_variable=csp.mrv,
+                                                    order_domain_values=csp.lcv,
+                                                    inference=csp.mac)
 
-    # See how much time our code took to get the solution
-    print(datetime.now() - startTime)
+                    # Try getting a solution
+                    if p.result == None:
+                        # Stop running the code when no solution is found for the current latest hour b
+                        break
+
+                    else:
+                        # Save a copy when a solution exists
+                        prev_p = p.copy()
+
+                    # Return the reading pointer to the beginning
+                    input_file.seek(0)
+
+                # Output the best working solution
+                prev_p.dump_solution(output_file)
+
+                # See how much time our code took to get the solution
+                print(datetime.now() - startTime)
+
+                # Print the algorithm's duration in the performance file
+                initial_line_to_print = 'Time taken when using the functions (' + str(select_variables_func) \
+                                        + ', ' + str(order_domain_func) + ', ' + str(inference_func) + '):\n'
+                performance_file.write(initial_line_to_print)
+                performance_file.write(str(datetime.now() - startTime) + '\n\n')
+
+                # Return the reading pointer to the beginning
+                input_file.seek(0)
+
+    performance_file.close()
 
 # Open the input and output files before entering in our functions, in order to be more similar to
 # what the teacher's code does
-input_file = open('examples/test_inventado.txt')
-output_file = open('examples/test_inventado_output.txt', 'w')
+input_file = open('examples/public_test_1.txt')
+output_file = open('examples/public_test_1_output.txt', 'w')
 solve(input_file, output_file)
 output_file.close()
