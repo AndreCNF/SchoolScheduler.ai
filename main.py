@@ -243,9 +243,9 @@ def solve(input_file, output_file):
         p = Problem(input_file, b)
 
         p.result = csp.backtracking_search(p,
-                                           select_unassigned_variable=csp.mrv,
-                                           order_domain_values=csp.lcv,
-                                           inference=csp.mac)
+                                           select_unassigned_variable=csp.first_unassigned_variable,
+                                           order_domain_values=csp.unordered_domain_values,
+                                           inference=csp.no_inference)
 
         # Try getting a solution
         if p.result == None:
@@ -264,7 +264,7 @@ def solve(input_file, output_file):
 
 # Open the input and output files before entering in our functions, in order to be more similar to
 # what the teacher's code does
-input_file = open('examples/test_inventado.txt')
-output_file = open('examples/test_inventado_output.txt', 'w')
+input_file = open('examples/public_test_2.txt')
+output_file = open('examples/public_test_2_output.txt', 'w')
 solve(input_file, output_file)
 output_file.close()

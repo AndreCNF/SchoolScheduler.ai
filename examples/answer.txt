@@ -3,15 +3,22 @@ Describe in how the CSP was formulated, namely the variables, domains, and const
 R1: The problem has as inputs the rooms available, the timetable slots, the student classes, the weekly
 classes and a respective set of associations between student classes and courses.
 The variables are the weekly classes, each can be assigned to a room and a timetable slot. The domain 
-consists of the all the possible combinations of rooms and timetables. We implemented that with an array
-of tuples indexed by timetables. The graph was implemented as a dictionary of lists in which every node has
-a list for every other node. Associations were implemented in a 
+consists of the all the possible combinations of rooms and timetables. We implemented that with dictionary of arrays
+of tuples, where the keys are the variables. The graph was implemented as a dictionary of lists in which every node 
+has a list for its neighbors, which are every other node. Associations (students class, course) were implemented in 
+a dictionary of arrays. The key of the dictionary is the course and the array is indexed by the students class. An 
+example for the project statement problem would be IASD = {"MEEC": TRUE, "MEAr": TRUE}. 
 
-The constraints (3 in total) are that each room can only hold 1 class at a time, each student can only attend a single class at a time
-and that no two weekly classes of the same course may occur on the same day.
+The constraints (3 in total) are the ones in the project statement.  
+1 - Each room can only hold 1 class at a time: implemented by comparing if the day, hour and room are the
+same for two variables.
+2 - Each student can only attend a single class at a time.
+3 - No two weekly classes of the same course may occur on the same day: implemented by comparing if the day,
+the type of class and the i-th class of course c and kind k in a week are the same.
 
+In terms of optimization, the cost is the hour of latest class. We implemented optimization by reducing
+iteratevely the domain of search, excluding, in each iteration, the latest timetable slot from all the 
+variables domain. We iterate until no solution is found. The optimal solution, and respective cost is the 
+one before the iteration where no solution is found.
 
-Indicate which heuristics and constraint propagation (inference) methods were used,
-and justify your choice.
-
-R2: 
+R2:
